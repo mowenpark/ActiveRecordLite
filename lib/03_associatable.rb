@@ -54,29 +54,30 @@ end
 module Associatable
   # Phase IIIb
   def belongs_to(name, options = {})
-    options = BelongsToOptions.new(name, options)
+    self.assoc_options[name] = BelongsToOptions.new(name, options)
     # debugger
     define_method(name) do
-      # options.model_class
-      # debugger
+      options = self.class.assoc_options[name]
       options.model_class.where(options.primary_key => self.send(options.foreign_key)).first
     end
   end
 
   def has_many(name, options = {})
     # HasManyOptions.new(name, options)
-    # debugger
-    options = HasManyOptions.new(name, self.name, options)
+
+    # self is a class since we are in class scope
+    self.assoc_options[name] = HasManyOptions.new(name, self.name, options)
 
     define_method(name) do
-      # options.model_class
-      # debugger
+      options = self.class.assoc_options[name] # needs to be class because we are now in instance scope
       options.model_class.where(options.foreign_key => self.send(options.primary_key))
     end
   end
 
   def assoc_options
     # Wait to implement this in Phase IVa. Modify `belongs_to`, too.
+    @assoc_options ||= {}
+    @assoc_options
   end
 end
 
