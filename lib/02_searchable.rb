@@ -6,7 +6,6 @@ module Searchable
   def where(params)
     where_line = params.keys.map { |key| "#{key} = ?" }.join(" AND ")
     vals = params.values
-    # debugger
     results = DBConnection.execute(<<-SQL, vals)
       SELECT
         *

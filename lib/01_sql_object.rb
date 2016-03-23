@@ -1,8 +1,6 @@
 require_relative 'db_connection'
 require 'active_support/inflector'
 require 'byebug'
-# NB: the attr_accessor we wrote in phase 0 is NOT used in the rest
-# of this project. It was only a warm up.
 
 class SQLObject
   def self.columns
@@ -45,7 +43,6 @@ class SQLObject
   end
 
   def self.parse_all(results)
-    # debugger
     results.map do |result|
       new(result)
     end
@@ -60,14 +57,12 @@ class SQLObject
     WHERE
     #{table_name}.id = #{id}
     SQL
-    # debugger
     result.empty? ? nil : new(result[0])
   end
 
   def initialize(params = {})
     params.each do |attr_name, value|
       new_name = attr_name.to_sym
-      # debugger
       if self.class.columns.include?(new_name)
         self.send("#{attr_name}=".to_sym, value)
       else
@@ -86,10 +81,7 @@ class SQLObject
 
   def insert
     col_names = self.class.columns[1..-1].join(", ")
-    # question_marks = ["?"] * self.class.columns.count
-    # question_marks = question_marks.join(", ")
     attr_val = attribute_values[1..-1]
-    # debugger
     DBConnection.execute(<<-SQL)
       INSERT INTO
         #{self.class.table_name} (#{col_names})
@@ -102,7 +94,6 @@ class SQLObject
   def update
     set_cols = self.class.columns[1..-1].map { |e| "#{e} = ?" }.join(", ")
     attr_val = attribute_values[1..-1]
-    # debugger
     DBConnection.execute(<<-SQL, attr_val)
     UPDATE
       #{self.class.table_name}
